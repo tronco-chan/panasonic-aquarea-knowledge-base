@@ -2,9 +2,9 @@
 
 A continuación se detallan los parámetros visibles en la configuración de instalador/usuario avanzado, explicando su **comportamiento real**.
 
-## 🔥 Zone 1 (Calefacción/Refrigeración)
-
 <img width="1555" height="1120" alt="2026-01-06 18_19_28-AQUAREA Service Cloud — Mozilla Firefox" src="https://github.com/user-attachments/assets/9755f9ee-ddf9-479d-8706-6848d47d1591" />
+
+## 🔥 Zone 1 (Calefacción/Refrigeración)
 
 ### Operation: Heating
 Define el modo de trabajo. Normalmente trabajaremos con **Curva de Compensación** (Water Temperature: Compensation Curve) en lugar de temperatura fija (Direct), para maximizar la eficiencia.
@@ -27,13 +27,15 @@ Define el modo de trabajo. Normalmente trabajaremos con **Curva de Compensación
 ### Water Temperature: Compensation Curve (Curva de Compensación)
 Básicamente, le dice a la máquina: *"cuanto más frío haga fuera, más caliente debe estar el agua de la calefacción"*.
 
+<img width="355" height="240" alt="2026-01-06 18_17_30-AQUAREA Service Cloud — Mozilla Firefox" src="https://github.com/user-attachments/assets/949d7a55-09c3-4418-805c-e46d5a0ed1ba" />
+
 **Ajustes de temperatura de agua (Eje Y(vertical)):**
-* **35°C:** Temperatura máxima de impulsión cuando hace mucho frío (pico de invierno).
-* **25°C:** Temperatura mínima de impulsión cuando el clima es suave.
+* **39°C:** Temperatura máxima de impulsión cuando hace mucho frío (pico de invierno).
+* **32°C:** Temperatura mínima de impulsión cuando el clima es suave.
 
 **Ajustes de temperatura exterior (Eje X(horizontal)):**
-* **5°C:** Punto de "frío intenso". Si fuera hace 5°C o menos, la máquina impulsa a 35°C.
-* **15°C:** Punto de "clima suave". Si fuera hace 15°C o más, la máquina baja a 25°C.
+* **-3°C:** Punto de "frío intenso". Si fuera hace -3°C o menos, la máquina impulsa a 39°C.
+* **15°C:** Punto de "clima suave". Si fuera hace 15°C o más, la máquina baja a 32°C.
 
 *La línea diagonal calcula automáticamente la temperatura intermedia. Si fuera hace 10°C (mitad), impulsará a 30°C.*
 

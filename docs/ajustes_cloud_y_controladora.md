@@ -4,6 +4,8 @@ A continuación se detallan los parámetros visibles en la configuración de ins
 
 ## 🔥 Zone 1 (Calefacción/Refrigeración)
 
+<img width="1555" height="1120" alt="2026-01-06 18_19_28-AQUAREA Service Cloud — Mozilla Firefox" src="https://github.com/user-attachments/assets/9755f9ee-ddf9-479d-8706-6848d47d1591" />
+
 ### Operation: Heating
 Define el modo de trabajo. Normalmente trabajaremos con **Curva de Compensación** (Water Temperature: Compensation Curve) en lugar de temperatura fija (Direct), para maximizar la eficiencia.
 
@@ -81,6 +83,9 @@ Para que la resistencia se encienda, tienen que alinearse los 3 astros:
 
 Gestión del depósito de agua caliente. Aquí es vital entender la priorización de tiempos.
 
+<img width="1279" height="118" alt="image" src="https://github.com/user-attachments/assets/d308cd03-0f61-42fe-ae50-c2c39e6cb47d" />
+
+
 ### **Tank Heat up time (Maximum)** y **Room Operation time (Maximum)**
 Estos dos ajustes definen el ciclo de trabajo cuando hay demanda simultánea (necesitas ducharte y necesitas calentar la casa a la vez).
 
@@ -95,12 +100,12 @@ Si defines 30 min y 30 min, la máquina hará: 30m ACS -> 30m Calefacción -> 30
 Diferencial para volver a calentar. Si la consigna es 50°C y este valor es -8°C, el ACS saltará cuando el depósito baje a 42°C.
 
 ### Sterilization
-Configuración de la legionela. Define temperatura y tiempo (ej: 65°C durante 10 min). Suele requerir el uso de la resistencia de apoyo para alcanzar esas temperaturas altas.
+Configuración de la legionela. Define temperatura y tiempo (ej: 65°C durante 10 min). Puede requerir el uso de la resistencia de apoyo para alcanzar esas temperaturas altas.
 
 ---
 
 
-## 🚀 Modos Especiales (Powerful & Forced)
+## 🚀 Modos Especiales (Powerful & Forced) - WORK IN PROGRESS
 
 ### Calefacción/ACS Forzada
 En teoría, estos modos le dicen a la máquina: *"Ahora que estás activa, haz **SOLO** esto que te pido"*. Actúan como un selector de prioridad absoluta.

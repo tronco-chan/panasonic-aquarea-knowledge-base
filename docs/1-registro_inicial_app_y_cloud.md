@@ -17,11 +17,10 @@ Con la migración de las nuevas aplicaciones de Panasonic, el proceso de obtener
 Si quieres acceder a los ajustes avanzados que hemos explicado en este repo, necesitas que tu usuario sea "Administrador/Instalador" de tu propia máquina. El procedimiento actual es el siguiente:
 
 1. **Solicitud desde la App:** Desde la aplicación móvil, busca el apartado de gestión/empresa y busca el nombre de tu "empresa" (o la que hayas creado para ti). Debes enviar una **solicitud de administración**.
-PROTIP: si usas gmail, puedes reutilizar el mismo email añadiendo tags, por ejemplo -> app movil -> email@gmail.com. cloud -> email+admincloud@gmail.com. ambos emails son el mismo y te llegaran igual.
 
 ![Untitled_formulario_solicitud](https://github.com/user-attachments/assets/f6c78d94-a4c3-4639-a27a-a297fd0f015e)
 
-3. **Aprobación desde la Web:**
+2. **Aprobación desde la Web:**
    * Entra en el portal de [Panasonic Pro Club / Service Cloud](https://aquarea-service.panasonic.com/).
    * Loguéate con tus credenciales.
    * Verás una notificación o mensaje de aprobación pendiente. 

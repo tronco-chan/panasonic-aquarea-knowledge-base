@@ -13,4 +13,5 @@ El manual oficial es extenso, pero a veces confuso o con traducciones inexactas.
 
 
 ## ⚠️ Disclaimer
-Esta información se basa en pruebas empíricas y el manual de servicio. Modifica los parámetros bajo tu propia responsabilidad.
+>[!WARNING]
+>Esta información se basa en pruebas empíricas y el manual de servicio. Modifica los parámetros bajo tu propia responsabilidad.

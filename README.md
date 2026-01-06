@@ -8,7 +8,9 @@ El manual oficial es extenso, pero a veces confuso o con traducciones inexactas.
 ## 🚀 Contenido
 * **[Ajustes del Cloud y Controladora](docs/ajustes_cloud_y_controladora.md):** Qué hace realmente cada botón (Desmintiendo el manual).
 * **[Lógica de Funcionamiento](docs/logica_de_funcionamiento.md):** Curvas de compensación, DeltaT y gestión de ACS.
-* **Integraciones:** Scripts para Heishamon y Automatizaciones para Home Assistant.
+* **[Integraciones HA](home_assistant/1-configuracion_inicial_integracion.md):** Integración oficial-comunidad y automatizaciones.
+* **[Heishamon](heishamon/1-configuracion_inicial.md):** soonTM
+
 
 ## ⚠️ Disclaimer
 Esta información se basa en pruebas empíricas y el manual de servicio. Modifica los parámetros bajo tu propia responsabilidad.

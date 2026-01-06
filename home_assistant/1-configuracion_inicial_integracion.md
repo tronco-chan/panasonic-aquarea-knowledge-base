@@ -17,7 +17,7 @@ A continuación, se detalla el procedimiento exacto para conseguir una conexión
 ### 1. Preparar la base (Instalación de la integración "vieja")
 Aunque parece contradictorio, necesitamos instalar primero la integración clásica para preparar el terreno:
 * Ve a **HACS** -> **Integraciones**.
-* Busca e instala: `Panasonic Aquarea Smart Cloud` (de @cjaliaga). https://github.com/cjaliaga/home-assistant-aquarea/
+* Busca e instala: `Panasonic Aquarea Smart Cloud` (de @cjaliaga). `https://github.com/cjaliaga/home-assistant-aquarea/`
 * **Reinicia Home Assistant.**
 
 ### 2. Intento de autenticación inicial
@@ -49,7 +49,7 @@ Ahora instalaremos el repositorio que realmente funciona con el nuevo sistema de
 * **Entidades:** Tras la instalación, dispondrás de entidades para:
     * Controlar la temperatura de consigna (Zone 1 / Zone 2).
     * Cambiar modos (Calor / Frío / ACS).
-    * Controlar el modo *Powerful* y el estado de la resistencia.
+    * Controlar el modo *Powerful* y silencio.
 
 ---
 

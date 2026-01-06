@@ -1,6 +1,7 @@
 # ☁️ Registro y Acceso al Cloud (Usuario e Instalador)
 
-Con la migración de las nuevas aplicaciones de Panasonic, el proceso de obtener privilegios de "Instalador" ha cambiado. Ya no se puede activar directamente desde la web como antes; ahora el flujo de aprobación es a la inversa.
+>[!IMPORTANT]
+>Con la migración de las nuevas aplicaciones de Panasonic, el proceso de obtener privilegios de "Instalador" ha cambiado. Ya no se puede activar directamente desde la web como antes; ahora el flujo de aprobación es a la inversa.
 ![Untitledpanacloud](https://github.com/user-attachments/assets/6e56161f-2138-4fab-bef4-686be580e37d)
 
 ---
@@ -26,9 +27,10 @@ Si quieres acceder a los ajustes avanzados que hemos explicado en este repo, nec
    * Verás una notificación o mensaje de aprobación pendiente. 
    * **Acéptate a ti mismo** como administrador.
 
-[!TIP] PROTIP: Reutiliza tu correo de Gmail con alias Si quieres separar tu cuenta de usuario normal de la de instalador pero usar un solo email, aprovecha los tags de Gmail. Panasonic los detecta como correos distintos, pero los mensajes te llegarán a la misma bandeja:
-* App móvil (Usuario): tuemail@gmail.com
-* Cloud (Instalador): tuemail+admincloud@gmail.com
+>[!TIP]
+>PROTIP: Reutiliza tu correo de Gmail con alias Si quieres separar tu cuenta de usuario normal de la de instalador pero usar un solo email, aprovecha los tags de Gmail. Panasonic los detecta como correos distintos, pero los mensajes te llegarán a la misma bandeja:
+>* App móvil (Usuario): tuemail@gmail.com
+>* Cloud (Instalador): tuemail+admincloud@gmail.com
 3. **Confirmación:** Una vez aceptada la solicitud en la web, tu usuario tendrá permisos totales para ver y editar los parámetros avanzados desde el navegador.
 
 ---

@@ -116,3 +116,7 @@ En teoría, estos modos le dicen a la máquina: *"Ahora que estás activa, haz *
 Fuerza a la máquina a ignorar el COP (eficiencia) y entregar el **100% de potencia** disponible.
 * En el caso de usar curvas de compensación, ignora el cálculo exterior y pone como consigna la **temperatura máxima** definida en la curva.
 * Útil para calentamientos rápidos al llegar a una casa fría, a costa de un mayor consumo eléctrico.
+
+---
+
+[<- Volver al inicio del repositorio](../README.md)

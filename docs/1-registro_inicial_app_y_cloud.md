@@ -1,6 +1,6 @@
 # ☁️ Registro y Acceso al Cloud (Usuario e Instalador)
 
->[!IMPORTANT]
+>[!NOTE]
 >Con la migración de las nuevas aplicaciones de Panasonic, el proceso de obtener privilegios de "Instalador" ha cambiado. Ya no se puede activar directamente desde la web como antes; ahora el flujo de aprobación es a la inversa.
 ![Untitledpanacloud](https://github.com/user-attachments/assets/6e56161f-2138-4fab-bef4-686be580e37d)
 
@@ -9,7 +9,8 @@
 ## 📱 1. Requisitos previos
 * Tener instalada la App **Panasonic Comfort Cloud** en el móvil.
 * Tener una cuenta de usuario estándar ya creada y funcionando.
-* **Importante:** Si realizas gestiones desde el navegador del móvil, actívalo siempre en **"Modo Escritorio" (Modo ordenador)**, de lo contrario los formularios de Panasonic no cargan correctamente y dan error.
+>[!IMPORTANT]
+>**Importante:** Si realizas gestiones desde el navegador del móvil, actívalo siempre en **"Modo Escritorio" (Modo ordenador)**, de lo contrario los formularios de Panasonic no cargan correctamente y dan error.
 
 ---
 

@@ -10,7 +10,7 @@
 * Tener instalada la App **Panasonic Comfort Cloud** en el móvil.
 * Tener una cuenta de usuario estándar ya creada y funcionando.
 >[!IMPORTANT]
->**Importante:** Si realizas gestiones desde el navegador del móvil, actívalo siempre en **"Modo Escritorio" (Modo ordenador)**, de lo contrario los formularios de Panasonic no cargan correctamente y dan error.
+>**Importante:** Si realizas gestiones desde el navegador del móvil, actívalo siempre en **"Modo Escritorio" (Modo ordenador)**, de lo contrario los formularios de Panasonic no cargan correctamente y pueden dar error.
 
 ---
 

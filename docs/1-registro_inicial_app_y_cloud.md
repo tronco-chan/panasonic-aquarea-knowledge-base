@@ -25,6 +25,7 @@ Si quieres acceder a los ajustes avanzados que hemos explicado en este repo, nec
    * Loguéate con tus credenciales.
    * Verás una notificación o mensaje de aprobación pendiente. 
    * **Acéptate a ti mismo** como administrador.
+
 [!TIP] PROTIP: Reutiliza tu correo de Gmail con alias Si quieres separar tu cuenta de usuario normal de la de instalador pero usar un solo email, aprovecha los tags de Gmail. Panasonic los detecta como correos distintos, pero los mensajes te llegarán a la misma bandeja:
 * App móvil (Usuario): tuemail@gmail.com
 * Cloud (Instalador): tuemail+admincloud@gmail.com

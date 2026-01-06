@@ -37,7 +37,7 @@ Básicamente, le dice a la máquina: *"cuanto más frío haga fuera, más calien
 * **-3°C:** Punto de "frío intenso". Si fuera hace -3°C o menos, la máquina impulsa a 39°C.
 * **15°C:** Punto de "clima suave". Si fuera hace 15°C o más, la máquina baja a 32°C.
 
-*La línea diagonal calcula automáticamente la temperatura intermedia. Si fuera hace 10°C (mitad), impulsará a 30°C.*
+*La línea diagonal calcula automáticamente la temperatura intermedia. Si fuera hace 10°C (mitad), impulsará a ~35°C.*
 
 ---
 

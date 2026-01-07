@@ -11,6 +11,7 @@
 * Tener una cuenta de usuario estándar ya creada y funcionando.
 >[!IMPORTANT]
 >**Importante:** Si realizas gestiones desde el navegador del móvil, actívalo siempre en **"Modo Escritorio" (Modo ordenador)**, de lo contrario los formularios de Panasonic no cargan correctamente y pueden dar error.
+>Es recomendable y más facil hacer casi todos los pasos desde el ordenador.
 
 ---
 
@@ -29,7 +30,7 @@ Si quieres acceder a los ajustes avanzados que hemos explicado en este repo, nec
    * **Acéptate a ti mismo** como administrador.
 
 >[!TIP]
->PROTIP: Reutiliza tu correo de Gmail con alias Si quieres separar tu cuenta de usuario normal de la de instalador pero usar un solo email, aprovecha los tags de Gmail. Panasonic los detecta como correos distintos, pero los mensajes te llegarán a la misma bandeja:
+>PROTIP: Reutiliza tu correo de Gmail con alias! Si quieres separar tu cuenta de usuario normal de la de instalador pero usar un solo email, aprovecha los alias de Gmail. Panasonic los detecta como correos distintos, pero los mensajes te llegarán a la misma bandeja:
 >* App móvil (Usuario): tuemail@gmail.com
 >* Cloud (Instalador): tuemail+admincloud@gmail.com
 3. **Confirmación:** Una vez aceptada la solicitud en la web, tu usuario tendrá permisos totales para ver y editar los parámetros avanzados desde el navegador.

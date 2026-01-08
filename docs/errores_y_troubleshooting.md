@@ -4,9 +4,8 @@
 
 Fallo detectado en la serie de bombas de calor Panasonic Aquarea L (R290), centrado en el error de desescarche **H23** y la gestión de la válvula de expansión electrónica (EEV).
 
-## Estado
-
-Solucion temporal por parte de Panasonic. Nueva placa base. A la espera de actualizacion de firmware.
+> [!IMPORTANT]
+>Solucion temporal por parte de Panasonic. Nueva placa base. A la espera de actualizacion de firmware.
 
 ## 📋 Descripción del Problema
 El modelo Panasonic Serie L (lanzado a finales de 2023) presenta un comportamiento errático durante los ciclos de desescarche y cambios bruscos de carga térmica. El sistema sufre caídas de temperatura extremas en el refrigerante que activan los protocolos de seguridad.

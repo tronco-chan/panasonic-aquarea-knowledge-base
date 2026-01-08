@@ -1,13 +1,17 @@
 # ☁️ Registro y Acceso al Cloud (Usuario e Instalador)
 
-Con la migración de las nuevas aplicaciones de Panasonic, el proceso de obtener privilegios de "Instalador" ha cambiado. Ya no se puede activar directamente desde la web como antes; ahora el flujo de aprobación es a la inversa.
+>[!NOTE]
+>Con la migración de las nuevas aplicaciones de Panasonic, el proceso de obtener privilegios de "Instalador" ha cambiado. Ya no se puede activar directamente desde la web como antes; ahora el flujo de aprobación es a la inversa.
+![Untitledpanacloud](https://github.com/user-attachments/assets/6e56161f-2138-4fab-bef4-686be580e37d)
 
 ---
 
 ## 📱 1. Requisitos previos
 * Tener instalada la App **Panasonic Comfort Cloud** en el móvil.
 * Tener una cuenta de usuario estándar ya creada y funcionando.
-* **Importante:** Si realizas gestiones desde el navegador del móvil, actívalo siempre en **"Modo Escritorio" (Modo ordenador)**, de lo contrario los formularios de Panasonic no cargan correctamente y dan error.
+>[!IMPORTANT]
+>**Importante:** Si realizas gestiones desde el navegador del móvil, actívalo siempre en **"Modo Escritorio" (Modo ordenador)**, de lo contrario los formularios de Panasonic no cargan correctamente y pueden dar error.
+>Es recomendable y más facil hacer casi todos los pasos desde el ordenador.
 
 ---
 
@@ -16,15 +20,19 @@ Con la migración de las nuevas aplicaciones de Panasonic, el proceso de obtener
 Si quieres acceder a los ajustes avanzados que hemos explicado en este repo, necesitas que tu usuario sea "Administrador/Instalador" de tu propia máquina. El procedimiento actual es el siguiente:
 
 1. **Solicitud desde la App:** Desde la aplicación móvil, busca el apartado de gestión/empresa y busca el nombre de tu "empresa" (o la que hayas creado para ti). Debes enviar una **solicitud de administración**.
-PROTIP: si usas gmail, puedes reutilizar el mismo email añadiendo tags, por ejemplo -> app movil -> email@gmail.com. cloud -> email+admincloud@gmail.com. ambos emails son el mismo y te llegaran igual.
+
+![Untitled_formulario_solicitud](https://github.com/user-attachments/assets/f6c78d94-a4c3-4639-a27a-a297fd0f015e)
+
 2. **Aprobación desde la Web:**
    * Entra en el portal de [Panasonic Pro Club / Service Cloud](https://aquarea-service.panasonic.com/).
    * Loguéate con tus credenciales.
    * Verás una notificación o mensaje de aprobación pendiente. 
    * **Acéptate a ti mismo** como administrador.
-[!TIP] PROTIP: Reutiliza tu correo de Gmail con alias Si quieres separar tu cuenta de usuario normal de la de instalador pero usar un solo email, aprovecha los tags de Gmail. Panasonic los detecta como correos distintos, pero los mensajes te llegarán a la misma bandeja:
-* App móvil (Usuario): tuemail@gmail.com
-* Cloud (Instalador): tuemail+admincloud@gmail.com
+
+>[!TIP]
+>PROTIP: Reutiliza tu correo de Gmail con alias! Si quieres separar tu cuenta de usuario normal de la de instalador pero usar un solo email, aprovecha los alias de Gmail. Panasonic los detecta como correos distintos, pero los mensajes te llegarán a la misma bandeja:
+>* App móvil (Usuario): tuemail@gmail.com
+>* Cloud (Instalador): tuemail+admincloud@gmail.com
 3. **Confirmación:** Una vez aceptada la solicitud en la web, tu usuario tendrá permisos totales para ver y editar los parámetros avanzados desde el navegador.
 
 ---

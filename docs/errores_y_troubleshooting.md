@@ -45,11 +45,8 @@ Hasta la llegada de un firmware definitivo que optimice la EEV, se recomiendan l
 * **Garantía de Caudal:** Asegurar que el circuito de calefacción permita un volumen de agua suficiente para realizar desescarches rápidos y menos agresivos.
 
 ---
-
-# Errores comunes
-
 ---
-
+# Errores comunes
 
 # 🌡️ ¿Mi Aerotermia no calienta? Diagnóstico de Presión y Carga (R32)
 

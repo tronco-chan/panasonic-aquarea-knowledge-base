@@ -2,14 +2,15 @@
 
 A continuación se detallan los parámetros visibles en la configuración de instalador/usuario avanzado, explicando su **comportamiento real**.
 
+<img width="1568" height="1113" alt="2026-01-23 18_55_54-AQUAREA Service Cloud" src="https://github.com/user-attachments/assets/8c756034-26bc-43a9-8c35-d2f1ec3b646c" />
 <img width="1555" height="1120" alt="2026-01-06 18_19_28-AQUAREA Service Cloud — Mozilla Firefox" src="https://github.com/user-attachments/assets/9755f9ee-ddf9-479d-8706-6848d47d1591" />
 
-## 🔥 Zone 1 (Calefacción/Refrigeración)
+## 🔥 Zona 1 (Calefacción/Refrigeración)
 
-### Operation: Heating
+### Operación: Calor - Operation: Heating
 Define el modo de trabajo. Normalmente trabajaremos con **Curva de Compensación** (Water Temperature: Compensation Curve) en lugar de temperatura fija (Direct), para maximizar la eficiencia.
 
-### **Outdoor temperature for heating OFF** (¡Ojo: Traducción Confusa!)
+### **Tª exterior para calor OFF - Outdoor temperature for heating OFF** (¡Ojo: Traducción Confusa!)
 * **Valor en imagen:** `19 °C`
 * **Realidad:** Este parámetro está mal traducido en muchas versiones. Realmente define la **Temperatura exterior para HABILITAR la calefacción (Heating ON)**.
 * **Funcionamiento:**
@@ -17,14 +18,14 @@ Define el modo de trabajo. Normalmente trabajaremos con **Curva de Compensación
   * La máquina se **APAGA** (corte de calefacción por verano/calor) cuando la temperatura exterior supera el valor configurado **+3°C** (Hysteresis fija, hardcodeada). No es posible modificar este +3.
   * *Ejemplo:* Con 19°C configurados, cortará calefacción cuando fuera haga 22°C.
 
-### **DeltaT for heating ON**
+### **DeltaT para calor ON - DeltaT for heating ON**
 * **Valor en imagen:** `5 °C`
-* **Realidad:** Define el diferencial de temperatura objetivo entre la Ida (impulsión) y el Retorno.
+* **Realidad:** Otra traducción/descripción errónea. Define el diferencial de temperatura objetivo entre la Ida (impulsión) y el Retorno.
 * **Comportamiento:**
   * La máquina ajustará la velocidad de la bomba de agua para intentar mantener esta separación de 5 grados.
-  * **Importante:** El incumplimiento de este Delta **NO genera paradas** en la máquina. Es un objetivo de regulación de caudal, no un disparador de seguridad/corte. La máquina intentará cumplirlo, pero si no llega, seguirá funcionando.
+  * **Importante:** El incumplimiento de este Delta **NO genera paradas** en la máquina. Es un objetivo de regulación de caudal, no un disparador de seguridad/corte. La máquina intentará cumplirlo, pero si no llega, seguirá funcionando, tanto si se queda corta como se pasa de largo de el valor definido. SOLO LA SOBREIMPULSION (TEMPERATURA DE IMPULSION) POR ENCIMA DE LA TEMPERATURA OBJETIVO DE IMPULSION GENERA PARADA DEL COMPRESOR.
 
-### Water Temperature: Compensation Curve (Curva de Compensación)
+### Tª de agua para calor on: Curva compensación - Water Temperature: Compensation Curve
 Básicamente, le dice a la máquina: *"cuanto más frío haga fuera, más caliente debe estar el agua de la calefacción"*.
 
 <img width="355" height="240" alt="2026-01-06 18_17_30-AQUAREA Service Cloud — Mozilla Firefox" src="https://github.com/user-attachments/assets/949d7a55-09c3-4418-805c-e46d5a0ed1ba" />
@@ -41,19 +42,19 @@ Básicamente, le dice a la máquina: *"cuanto más frío haga fuera, más calien
 
 ---
 
-## ⚡ Heater (Resistencia de Apoyo)
+## ⚡ Resistencia de Apoyo - Calentador / Heater
 
 Estos ajustes gestionan la **Resistencia Eléctrica de Apoyo** (Backup Heater), un componente interno (generalmente de 3kW, 6kW o 9kW) que ayuda al compresor cuando este no es capaz de alcanzar la temperatura objetivo por sí solo.
 
 Entender estos parámetros es vital para evitar sustos en la factura eléctrica, ya que queremos que la resistencia funcione lo mínimo indispensable.
 
 ### 1. Condición Ambiental (El permiso)
-* **Outdoor temperature for heater ON:**
+* **Tª exterior para calentador act. - Outdoor temperature for heater ON:**
   * **Qué es:** El "portero" de la resistencia. Define la temperatura exterior mínima necesaria para **habilitar** el uso de la resistencia.
   * **Funcionamiento:** Si configuras `-5°C`, la resistencia estará **bloqueada** siempre que fuera haga más de -5°C, sin importar cuánto le cueste a la máquina calentar el agua. Solo si la temperatura exterior baja de ese umbral, la resistencia *podría* entrar (si se cumplen las condiciones de agua abajo descritas).
 
 ### 2. Condición Temporal (La paciencia)
-* **Heater ON delay time:**
+* **Tiempo retraso calentador encendido - Heater ON delay time:**
   * **Qué es:** Un temporizador de espera o "tiempo de gracia".
   * **Funcionamiento:** Una vez que se cumplen todas las condiciones para encender la resistencia (hace frío fuera y el agua está fría), la máquina espera este tiempo antes de encenderla realmente.
   * **Objetivo:** Darle una oportunidad al compresor de recuperar la temperatura por sí mismo sin "tirar de lo fácil" (y caro). Un tiempo más largo favorece la eficiencia; un tiempo muy corto prioriza el confort rápido.
@@ -61,12 +62,12 @@ Entender estos parámetros es vital para evitar sustos en la factura eléctrica,
 ### 3. Condiciones de Disparo (El gatillo por temperatura de agua)
 Estos dos ajustes definen cuándo entra y sale la resistencia basándose en la desviación real de la temperatura del agua respecto a lo que le has pedido (Consigna).
 
-* **Heater ON DeltaT (of target temp):**
+* **DeltaT temperatura objetivo calentador encendido - Heater ON DeltaT (of target temp):**
   * **Qué es:** El umbral de desviación para **ENCENDER**.
   * **Funcionamiento:** Define cuántos grados por debajo de la consigna debe caer la temperatura real de impulsión para activar la resistencia.
   * *Ejemplo:* Si tu consigna es 35°C y configuras `-4°C`, la resistencia se activará si el agua que sale de la máquina baja a **31°C** (y ya ha pasado el tiempo de *delay*).
 
-* **Heater OFF DeltaT (of target temp):**
+* **DeltaT temperatura objetivo calentador apagado - Heater OFF DeltaT (of target temp):**
   * **Qué es:** El umbral de aproximación para **APAGAR**.
   * **Funcionamiento:** Define a qué distancia de la consigna se debe apagar la resistencia porque el agua ya está suficientemente caliente y el compresor puede terminar el trabajo.
   * *Ejemplo:* Siguiendo el caso anterior (consigna 35°C), si configuras `-1°C`, la resistencia se apagará en cuanto el agua recupere y llegue a **34°C**, dejando ese último grado de esfuerzo solo al compresor.
@@ -75,16 +76,17 @@ Estos dos ajustes definen cuándo entra y sale la resistencia basándose en la d
 
 **💡 Resumen de la lógica:**
 Para que la resistencia se encienda, tienen que alinearse los 3 astros:
-1. Hacer más frío fuera que el *Outdoor temp*.
-2. Que el agua esté más fría que el *ON DeltaT*.
-3. Que pase el tiempo del *Delay*.
+1. Hacer más frío fuera que el *Tª exterior para caletnador ac*.
+2. Que el agua esté más fría que el *DeltaT temperatura objetivo calentador encendido*.
+3. Que pase el tiempo del *Tiempo retraso calentador encendido*.
 
 ---
 
-## 💧 Tank (Agua Caliente Sanitaria - ACS)
+## 💧 Depósito / Tank (Agua Caliente Sanitaria - ACS)
 
 Gestión del depósito de agua caliente. Aquí es vital entender la priorización de tiempos.
 
+<img width="1336" height="113" alt="2026-01-23 19_07_32-AQUAREA Service Cloud" src="https://github.com/user-attachments/assets/7d918e8f-7587-4084-907b-12e58d74de49" />
 <img width="1279" height="118" alt="image" src="https://github.com/user-attachments/assets/d308cd03-0f61-42fe-ae50-c2c39e6cb47d" />
 
 

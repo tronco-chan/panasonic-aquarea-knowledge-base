@@ -3,14 +3,22 @@ description: >
   Enciende calefacción con offset +1 si la casa está fría, fuera de horas punta
   y la temperatura exterior supera los 18°C. Si hace más frío, enciende con
   offset 0. Al alcanzar temperatura de confort, apaga y restaura a 0.
+variables:
+  # --- CONFIGURACIÓN DE USUARIO --- busca y reemplaza estos valores en conjunto
+  temp_casa_fria: 21.95 ## temperatura de encendido de calefaccion. hasta donde se deja enfriar la casa
+  temp_casa_exceso: 23.5 ## temperatura de apagado en caso de no poder adaptarse
+  temp_ext_limite_boost: 18.0 ## temperatura alta que obligue a definir offset en caso de baja disipacion
+  # --------------------------------
+mode: single
+
 triggers:
   - hours: /1
     minutes: "1"
     trigger: time_pattern
-  - entity_id: sensor.promedio_temperatura_int
+  - alias: ON < 21.95 TempInt
+    entity_id: sensor.promedio_temperatura_int
     below: 21.95
     trigger: numeric_state
-    alias: ON < 21.95 TempInt
   - alias: OFF > 23.2 TempInt
     entity_id:
       - sensor.promedio_temperatura_int
@@ -20,7 +28,9 @@ triggers:
       hours: 0
       minutes: 15
       seconds: 0
+
 conditions: []
+
 actions:
   - choose:
       - conditions:
@@ -178,4 +188,3 @@ actions:
                       temperature: 0
                     action: climate.set_temperature
                 alias: IF ACS > 5 STOP
-mode: single

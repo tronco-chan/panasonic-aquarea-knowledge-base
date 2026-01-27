@@ -1,0 +1,181 @@
+alias: Aerotermia - Calefaccion ON/OFF termostato + (offset dinámico)
+description: >
+  Enciende calefacción con offset +1 si la casa está fría, fuera de horas punta
+  y la temperatura exterior supera los 18°C. Si hace más frío, enciende con
+  offset 0. Al alcanzar temperatura de confort, apaga y restaura a 0.
+triggers:
+  - hours: /1
+    minutes: "1"
+    trigger: time_pattern
+  - entity_id: sensor.promedio_temperatura_int
+    below: 21.95
+    trigger: numeric_state
+    alias: ON < 21.95 TempInt
+  - alias: OFF > 23.2 TempInt
+    entity_id:
+      - sensor.promedio_temperatura_int
+    above: 23.5
+    trigger: numeric_state
+    for:
+      hours: 0
+      minutes: 15
+      seconds: 0
+conditions: []
+actions:
+  - choose:
+      - conditions:
+          - condition: numeric_state
+            entity_id: sensor.promedio_temperatura_int
+            below: 21.95
+          - condition: state
+            entity_id: climate.pana_zone_1
+            state: "off"
+          - condition: not
+            conditions:
+              - condition: time
+                weekday:
+                  - mon
+                  - tue
+                  - wed
+                  - thu
+                  - fri
+                after: "10:00:00"
+                before: "14:00:00"
+              - condition: time
+                weekday:
+                  - mon
+                  - tue
+                  - wed
+                  - thu
+                  - fri
+                after: "18:00:00"
+                before: "22:00:00"
+        sequence:
+          - action: climate.set_hvac_mode
+            target:
+              entity_id: climate.pana_zone_1
+            data:
+              hvac_mode: heat
+          - choose:
+              - conditions:
+                  - condition: numeric_state
+                    entity_id: sensor.promedio_temperatura_ext
+                    above: 18
+                sequence:
+                  - target:
+                      entity_id: climate.pana_zone_1
+                    data:
+                      temperature: 1
+                    action: climate.set_temperature
+            default:
+              - target:
+                  entity_id: climate.pana_zone_1
+                data:
+                  temperature: 0
+                action: climate.set_temperature
+      - conditions:
+          - condition: numeric_state
+            entity_id: sensor.promedio_temperatura_int
+            above: 23.5
+          - condition: state
+            entity_id: climate.pana_zone_1
+            state: heat
+        sequence:
+          - delay:
+              hours: 0
+              minutes: 3
+              seconds: 0
+              milliseconds: 0
+          - choose:
+              - conditions:
+                  - alias: si ACS < 5
+                    condition: template
+                    value_template: >
+                      {% set mode = state_attr('water_heater.pana_tank',
+                      'operation_mode') %} {% set current =
+                      state_attr('water_heater.pana_tank',
+                      'current_temperature') %} {% set target =
+                      state_attr('water_heater.pana_tank', 'temperature') %} {{
+                      mode in ['off', 'idle'] and current is number and target
+                      is number and current <= (target - 5) }}
+                  - condition: state
+                    entity_id: water_heater.pana_tank
+                    attribute: operation_mode
+                    state: "off"
+                sequence:
+                  - target:
+                      entity_id: water_heater.pana_tank
+                    data:
+                      operation_mode: heating
+                    action: water_heater.set_operation_mode
+                  - delay:
+                      hours: 0
+                      minutes: 20
+                      seconds: 0
+                      milliseconds: 0
+                  - device_id: 64939aef6f809fb3c301016918ac262d
+                    domain: climate
+                    entity_id: 2a44eaa41c7c792928c1ced9e23fd416
+                    type: set_hvac_mode
+                    hvac_mode: "off"
+                  - target:
+                      entity_id: climate.pana_zone_1
+                    data:
+                      temperature: 0
+                    action: climate.set_temperature
+                  - wait_template: >
+                      {% set current =
+                      state_attr('water_heater.pana_tank','current_temperature')
+                      | float(0) %} {% set target =
+                      state_attr('water_heater.pana_tank','temperature') |
+                      float(0) %} {{ current >= (target - 0.5) }}
+                    timeout: "04:00:00"
+                    continue_on_timeout: true
+                  - wait_for_trigger:
+                      - entity_id: water_heater.pana_tank
+                        attribute: operation_mode
+                        to: idle
+                        for:
+                          minutes: 15
+                        trigger: state
+                    timeout:
+                      hours: 1
+                    continue_on_timeout: true
+                  - target:
+                      entity_id: water_heater.pana_tank
+                    data:
+                      operation_mode: "off"
+                    action: water_heater.set_operation_mode
+                  - data:
+                      name: Aerotermia
+                      message: >-
+                        Calentamiento de ACS finalizado. Modo heating
+                        desactivado.
+                      entity_id: water_heater.pana_tank
+                    action: logbook.log
+                alias: IF ACS < 5 CALENTAR
+              - conditions:
+                  - alias: si ACS > 5
+                    condition: template
+                    value_template: >
+                      {% set mode = state_attr('water_heater.pana_tank',
+                      'operation_mode') %} {% set current =
+                      state_attr('water_heater.pana_tank',
+                      'current_temperature') %} {% set target =
+                      state_attr('water_heater.pana_tank', 'temperature') %} {{
+                      mode in ['off', 'idle'] and current is number and target
+                      is number and current > (target - 5) }}
+                    enabled: true
+                sequence:
+                  - action: climate.set_hvac_mode
+                    target:
+                      entity_id: climate.pana_zone_1
+                    data:
+                      hvac_mode: "off"
+                  - target:
+                      entity_id: climate.pana_zone_1
+                    data:
+                      temperature: 0
+                    action: climate.set_temperature
+                alias: IF ACS > 5 STOP
+mode: single

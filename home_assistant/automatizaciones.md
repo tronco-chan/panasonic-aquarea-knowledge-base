@@ -60,8 +60,10 @@ Actúa como un sintonizador fino mientras la máquina está en modo calefacción
 
 ### Instalación
 1. Copia el contenido de las automatizaciones en tu archivo `automations.yaml`.
-2. Sustituye los `device_id` y `entity_id` por los correspondientes a tu integración.
+2. Sustituye los `entity_id` por los correspondientes a tu integración.
 3. Asegúrate de que el trigger de la automatización dinámica no coincida en el mismo minuto que el chequeo de la maestra para evitar colisiones de órdenes.
+
+> ⚠️ **Nota sobre nomenclatura**: En todas las automatizaciones, el prefijo **`pana`** en las entidades (ej: `climate.pana_zone_1`, `water_heater.pana_tank`) corresponde al nombre asignado a la aerotermia Panasonic Aquarea durante la configuración de la integración en Home Assistant. **Cada usuario debe sustituirlo por el nombre que haya definido en su propia instalación**.
 
 ## 💡 Notas sobre Emisores de Baja Inercia
 Esta configuración está optimizada para **radiadores de aluminio y fancoils**. Al tener poca inercia, el sistema reacciona rápidamente a los cambios de offset, permitiendo que el ajuste dinámico horario sea muy efectivo para mantener una temperatura lineal sin los "dientes de sierra" típicos de los termostatos ON/OFF convencionales.

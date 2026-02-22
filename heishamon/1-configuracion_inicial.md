@@ -2,4 +2,6 @@
 
 ---
 
-[<- Volver al inicio del repositorio](../README.md)
+| | |
+|:---|---:|
+| [📚 Volver al índice](../README.md) | |

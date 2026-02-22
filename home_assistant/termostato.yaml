@@ -1,28 +1,23 @@
-alias: Aerotermia - Calefaccion ON/OFF termostato + (offset dinámico)
+alias: Aerotermia - Termostato Maestro ON/OFF + Gestión ACS
 description: >
-  Enciende calefacción con offset +1 si la casa está fría, fuera de horas punta
-  y la temperatura exterior supera los 18°C. Si hace más frío, enciende con
-  offset 0. Al alcanzar temperatura de confort, apaga y restaura a 0.
-variables:
-  # --- CONFIGURACIÓN DE USUARIO --- busca y reemplaza estos valores en conjunto
-  temp_casa_fria: 21.95 ## temperatura de encendido de calefaccion. hasta donde se deja enfriar la casa
-  temp_casa_exceso: 23.5 ## temperatura de apagado en caso de no poder adaptarse
-  temp_ext_limite_boost: 18.0 ## temperatura alta que obligue a definir offset en caso de baja disipacion
-  # --------------------------------
+  Enciende calefacción cuando la casa está fría (por debajo de la consigna de encendido),
+  aplica boost de offset si la temperatura exterior es alta (anti-cycling).
+  Al alcanzar la temperatura de apagado, gestiona la carga de ACS si es necesario
+  antes de apagar. Todos los umbrales son configurables mediante helpers externos.
 mode: single
 
 triggers:
   - hours: /1
     minutes: "1"
     trigger: time_pattern
-  - alias: ON < 21.95 TempInt
+  - alias: ON < temp_encendido TempInt
     entity_id: sensor.promedio_temperatura_int
-    below: 21.95
+    below: input_number.temp_encendido
     trigger: numeric_state
-  - alias: OFF > 23.2 TempInt
+  - alias: OFF > temp_apagado TempInt
     entity_id:
       - sensor.promedio_temperatura_int
-    above: 23.5
+    above: input_number.temp_apagado
     trigger: numeric_state
     for:
       hours: 0
@@ -33,44 +28,51 @@ conditions: []
 
 actions:
   - choose:
+      # =====================================================
+      # RAMA 1: ENCENDIDO — Casa fría, máquina apagada
+      # =====================================================
       - conditions:
           - condition: numeric_state
             entity_id: sensor.promedio_temperatura_int
-            below: 21.95
+            below: input_number.temp_encendido
           - condition: state
             entity_id: climate.pana_zone_1
             state: "off"
-          - condition: not
-            conditions:
-              - condition: time
-                weekday:
-                  - mon
-                  - tue
-                  - wed
-                  - thu
-                  - fri
-                after: "10:00:00"
-                before: "14:00:00"
-              - condition: time
-                weekday:
-                  - mon
-                  - tue
-                  - wed
-                  - thu
-                  - fri
-                after: "18:00:00"
-                before: "22:00:00"
+          # --- RESTRICCIÓN HORARIA (OPCIONAL) ---
+          # Descomentar el bloque siguiente para evitar arranques en horas punta.
+          # Evita encendidos L-V en franjas de alta tarifa eléctrica.
+          # - condition: not
+          #     conditions:
+          #       - condition: time
+          #         weekday:
+          #           - mon
+          #           - tue
+          #           - wed
+          #           - thu
+          #           - fri
+          #         after: "10:00:00"
+          #         before: "14:00:00"
+          #       - condition: time
+          #         weekday:
+          #           - mon
+          #           - tue
+          #           - wed
+          #           - thu
+          #           - fri
+          #         after: "18:00:00"
+          #         before: "22:00:00"
         sequence:
           - action: climate.set_hvac_mode
             target:
               entity_id: climate.pana_zone_1
             data:
               hvac_mode: heat
+          # Anti-cycling: boost +1 si temp exterior alta para garantizar disipación
           - choose:
               - conditions:
                   - condition: numeric_state
                     entity_id: sensor.promedio_temperatura_ext
-                    above: 18
+                    above: input_number.temp_ext_boost
                 sequence:
                   - target:
                       entity_id: climate.pana_zone_1
@@ -83,10 +85,14 @@ actions:
                 data:
                   temperature: 0
                 action: climate.set_temperature
+
+      # =====================================================
+      # RAMA 2: APAGADO — Casa caliente, gestión ACS
+      # =====================================================
       - conditions:
           - condition: numeric_state
             entity_id: sensor.promedio_temperatura_int
-            above: 23.5
+            above: input_number.temp_apagado
           - condition: state
             entity_id: climate.pana_zone_1
             state: heat
@@ -97,21 +103,43 @@ actions:
               seconds: 0
               milliseconds: 0
           - choose:
+              # --- RAMA ACS: Si el depósito necesita carga (delta >= umbral) ---
               - conditions:
-                  - alias: si ACS < 5
+                  - alias: si ACS necesita carga (delta >= umbral)
                     condition: template
                     value_template: >
-                      {% set mode = state_attr('water_heater.pana_tank',
-                      'operation_mode') %} {% set current =
-                      state_attr('water_heater.pana_tank',
-                      'current_temperature') %} {% set target =
-                      state_attr('water_heater.pana_tank', 'temperature') %} {{
-                      mode in ['off', 'idle'] and current is number and target
-                      is number and current <= (target - 5) }}
+                      {% set mode = state_attr('water_heater.pana_tank', 'operation_mode') %}
+                      {% set current = state_attr('water_heater.pana_tank', 'current_temperature') %}
+                      {% set target = state_attr('water_heater.pana_tank', 'temperature') %}
+                      {% set delta = states('input_number.delta_acs') | float(5) %}
+                      {{ mode in ['off', 'idle'] and current is number and target is number and current <= (target - delta) }}
                   - condition: state
                     entity_id: water_heater.pana_tank
                     attribute: operation_mode
                     state: "off"
+                  # --- RESTRICCIÓN HORARIA ACS (OPCIONAL) ---
+                  # Descomentar para evitar calentamiento de ACS en horas punta.
+                  # Si está activo y se cumplen esas horas, NO se ejecuta el calentado de ACS.
+                  # - condition: not
+                  #     conditions:
+                  #       - condition: time
+                  #         weekday:
+                  #           - mon
+                  #           - tue
+                  #           - wed
+                  #           - thu
+                  #           - fri
+                  #         after: "10:00:00"
+                  #         before: "14:00:00"
+                  #       - condition: time
+                  #         weekday:
+                  #           - mon
+                  #           - tue
+                  #           - wed
+                  #           - thu
+                  #           - fri
+                  #         after: "18:00:00"
+                  #         before: "22:00:00"
                 sequence:
                   - target:
                       entity_id: water_heater.pana_tank
@@ -123,22 +151,20 @@ actions:
                       minutes: 20
                       seconds: 0
                       milliseconds: 0
-                  - device_id: 64939aef6f809fb3c301016918ac262d
-                    domain: climate
-                    entity_id: 2a44eaa41c7c792928c1ced9e23fd416
-                    type: set_hvac_mode
-                    hvac_mode: "off"
+                  - action: climate.set_hvac_mode
+                    target:
+                      entity_id: climate.pana_zone_1
+                    data:
+                      hvac_mode: "off"
                   - target:
                       entity_id: climate.pana_zone_1
                     data:
                       temperature: 0
                     action: climate.set_temperature
                   - wait_template: >
-                      {% set current =
-                      state_attr('water_heater.pana_tank','current_temperature')
-                      | float(0) %} {% set target =
-                      state_attr('water_heater.pana_tank','temperature') |
-                      float(0) %} {{ current >= (target - 0.5) }}
+                      {% set current = state_attr('water_heater.pana_tank','current_temperature') | float(0) %}
+                      {% set target = state_attr('water_heater.pana_tank','temperature') | float(0) %}
+                      {{ current >= (target - 0.5) }}
                     timeout: "04:00:00"
                     continue_on_timeout: true
                   - wait_for_trigger:
@@ -163,18 +189,18 @@ actions:
                         desactivado.
                       entity_id: water_heater.pana_tank
                     action: logbook.log
-                alias: IF ACS < 5 CALENTAR
+                alias: IF ACS necesita carga CALENTAR
+
+              # --- RAMA SIN ACS: Si el depósito NO necesita carga, apagar directamente ---
               - conditions:
-                  - alias: si ACS > 5
+                  - alias: si ACS NO necesita carga (delta < umbral)
                     condition: template
                     value_template: >
-                      {% set mode = state_attr('water_heater.pana_tank',
-                      'operation_mode') %} {% set current =
-                      state_attr('water_heater.pana_tank',
-                      'current_temperature') %} {% set target =
-                      state_attr('water_heater.pana_tank', 'temperature') %} {{
-                      mode in ['off', 'idle'] and current is number and target
-                      is number and current > (target - 5) }}
+                      {% set mode = state_attr('water_heater.pana_tank', 'operation_mode') %}
+                      {% set current = state_attr('water_heater.pana_tank', 'current_temperature') %}
+                      {% set target = state_attr('water_heater.pana_tank', 'temperature') %}
+                      {% set delta = states('input_number.delta_acs') | float(5) %}
+                      {{ mode in ['off', 'idle'] and current is number and target is number and current > (target - delta) }}
                     enabled: true
                 sequence:
                   - action: climate.set_hvac_mode
@@ -187,4 +213,4 @@ actions:
                     data:
                       temperature: 0
                     action: climate.set_temperature
-                alias: IF ACS > 5 STOP
+                alias: IF ACS NO necesita carga STOP

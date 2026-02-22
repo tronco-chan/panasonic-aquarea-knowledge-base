@@ -123,4 +123,6 @@ Fuerza a la máquina a ignorar el COP (eficiencia) y entregar el **100% de poten
 
 ---
 
-[<- Volver al inicio del repositorio](../README.md)
+| | | |
+|:---|:---:|---:|
+| [← Registro Inicial](1-registro_inicial_app_y_cloud.md) | [📚 Volver al índice](../README.md) | [Lógica de Funcionamiento →](logica_de_funcionamiento.md) |

@@ -7,4 +7,6 @@ silencio 3 30hz - 3.3kw
 
 ---
 
-[<- Volver al inicio del repositorio](../README.md)
+| | | |
+|:---|:---:|---:|
+| [← Ajustes Cloud y Controladora](ajustes_cloud_y_controladora.md) | [📚 Volver al índice](../README.md) | [Errores y Troubleshooting →](errores_y_troubleshooting.md) |

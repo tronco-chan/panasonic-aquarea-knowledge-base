@@ -56,4 +56,6 @@ La máquina debe estar primero registrada en la App de usuario normal (`Comfort 
 
 ---
 
-[<- Volver al inicio del repositorio](../README.md)
+| | | |
+|:---|:---:|---:|
+| | [📚 Volver al índice](../README.md) | [Ajustes Cloud y Controladora →](ajustes_cloud_y_controladora.md) |

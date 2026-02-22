@@ -53,4 +53,6 @@ Ahora instalaremos el repositorio que realmente funciona con el nuevo sistema de
 
 ---
 
-[<- Volver al inicio del repositorio](../README.md)
+| | | |
+|:---|:---:|---:|
+| | [📚 Volver al índice](../README.md) | [Automatizaciones →](automatizaciones.md) |

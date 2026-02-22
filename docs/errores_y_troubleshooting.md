@@ -95,4 +95,6 @@ Para evitar respuestas genéricas como "es que fuera hace frío", utiliza datos 
 ---
 
 
-[<- Volver al inicio del repositorio](../README.md)
+| | | |
+|:---|:---:|---:|
+| [← Lógica de Funcionamiento](logica_de_funcionamiento.md) | [📚 Volver al índice](../README.md) | |

@@ -1,4 +1,4 @@
-alias: Optimización Offset Aerotermia Dinámico
+alias: Optimización Offset Dinámico
 description: Ajusta el offset (+1/-1) según temp interior, con límites de -5 a 5
 triggers:
   - trigger: time_pattern
@@ -13,30 +13,92 @@ conditions:
 actions:
   - choose:
       - conditions:
-          - condition: numeric_state
-            entity_id: sensor.promedio_temperatura_int
-            above: 23
-          - condition: numeric_state
-            entity_id: sensor.promedio_temperatura_ext
-            below: 13
+          - condition: template
+            value_template: >-
+              {% set consigna = states('input_number.consigna_temperatura') | float(22.5) %}
+              {% if is_state('input_boolean.modo_vacaciones', 'on') %}
+                {% set consigna = consigna - 2 %}
+              {% endif %}
+              {% if is_state('input_boolean.reduccion_nocturna', 'on') %}
+                {% set dormir = states('input_datetime.hora_dormir') | default('22:00:00') %}
+                {% set despertar = states('input_datetime.hora_despertar') | default('06:00:00') %}
+                {% set ahora = now().strftime('%H:%M:%S') %}
+                {% if dormir > despertar %}
+                  {% if ahora >= dormir or ahora < despertar %}
+                    {% set consigna = consigna - 1 %}
+                  {% endif %}
+                {% else %}
+                  {% if ahora >= dormir and ahora < despertar %}
+                    {% set consigna = consigna - 1 %}
+                  {% endif %}
+                {% endif %}
+              {% endif %}
+              {% set temp_int = states('sensor.promedio_temperatura_int') | float(0) %}
+              {{ temp_int > (consigna + 0.4) }}
+          - condition: template
+            value_template: >-
+              {% set temp_ext = states('sensor.promedio_temperatura_ext') | float(0) %}
+              {% set actual = state_attr('climate.pana_zone_1', 'temperature') | float(0) %}
+              {{ temp_ext < 15 or actual > 0 }}
         sequence:
-          - action: climate.set_temperature
-            target:
-              entity_id: climate.pana_zone_1
-            data:
-              temperature: >
-                {% set actual = state_attr('climate.pana_zone_1', 'temperature')
-                | float(0) %} {{ ([actual - 1, -5] | max) }}
+          - variables:
+              target_temp: >-
+                {% set actual = state_attr('climate.pana_zone_1', 'temperature') | float(0) %}
+                {% set temp_ext = states('sensor.promedio_temperatura_ext') | float(0) %}
+                {% set limite_inf = 0 if temp_ext >= 15 else -5 %}
+                {{ ([actual - 1, limite_inf] | max) }}
+          - repeat:
+              sequence:
+                - action: climate.set_temperature
+                  target:
+                    entity_id: climate.pana_zone_1
+                  data:
+                    temperature: "{{ target_temp }}"
+                - delay:
+                    minutes: 1
+              until:
+                - condition: template
+                  value_template: >-
+                    {{ state_attr('climate.pana_zone_1', 'temperature') | float(0) == target_temp | float(0) or repeat.index >= 5 }}
       - conditions:
-          - condition: numeric_state
-            entity_id: sensor.promedio_temperatura_int
-            below: 22.4
+          - condition: template
+            value_template: >-
+              {% set consigna = states('input_number.consigna_temperatura') | float(22.5) %}
+              {% if is_state('input_boolean.modo_vacaciones', 'on') %}
+                {% set consigna = consigna - 2 %}
+              {% endif %}
+              {% if is_state('input_boolean.reduccion_nocturna', 'on') %}
+                {% set dormir = states('input_datetime.hora_dormir') | default('22:00:00') %}
+                {% set despertar = states('input_datetime.hora_despertar') | default('06:00:00') %}
+                {% set ahora = now().strftime('%H:%M:%S') %}
+                {% if dormir > despertar %}
+                  {% if ahora >= dormir or ahora < despertar %}
+                    {% set consigna = consigna - 1 %}
+                  {% endif %}
+                {% else %}
+                  {% if ahora >= dormir and ahora < despertar %}
+                    {% set consigna = consigna - 1 %}
+                  {% endif %}
+                {% endif %}
+              {% endif %}
+              {% set temp_int = states('sensor.promedio_temperatura_int') | float(0) %}
+              {{ temp_int < (consigna - 0.4) }}
         sequence:
-          - action: climate.set_temperature
-            target:
-              entity_id: climate.pana_zone_1
-            data:
-              temperature: >
-                {% set actual = state_attr('climate.pana_zone_1', 'temperature')
-                | float(0) %} {{ ([actual + 1, 5] | min) }}
+          - variables:
+              target_temp: >-
+                {% set actual = state_attr('climate.pana_zone_1', 'temperature') | float(0) %}
+                {{ ([actual + 1, 5] | min) }}
+          - repeat:
+              sequence:
+                - action: climate.set_temperature
+                  target:
+                    entity_id: climate.pana_zone_1
+                  data:
+                    temperature: "{{ target_temp }}"
+                - delay:
+                    minutes: 1
+              until:
+                - condition: template
+                  value_template: >-
+                    {{ state_attr('climate.pana_zone_1', 'temperature') | float(0) == target_temp | float(0) or repeat.index >= 5 }}
 mode: single

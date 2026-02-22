@@ -12,7 +12,7 @@ triggers:
     trigger: time_pattern
   - alias: ON < temp_encendido TempInt
     entity_id: sensor.promedio_temperatura_int
-    below: "{{ states('input_number.temp_encendido') | float(21.95) }}"
+    below: "{{ states('input_number.temp_encendido') | float(21.9) }}"
     trigger: numeric_state
   - alias: OFF > temp_apagado TempInt
     entity_id:
@@ -34,7 +34,7 @@ actions:
       - conditions:
           - condition: numeric_state
             entity_id: sensor.promedio_temperatura_int
-            below: "{{ states('input_number.temp_encendido') | float(21.95) }}"
+            below: "{{ states('input_number.temp_encendido') | float(21.9) }}"
           - condition: state
             entity_id: climate.pana_zone_1
             state: "off"

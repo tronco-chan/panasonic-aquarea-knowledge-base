@@ -47,7 +47,7 @@ Actúa como un sintonizador fino mientras la máquina está en modo calefacción
 - `sensor.promedio_temperatura_ext`: Sensor de temperatura exterior.
 
 **Helpers — Termostato Maestro (`termostato.yaml`):**
-- `input_number.temp_encendido`: Temperatura de encendido de calefacción (por defecto: 21.95°C).
+- `input_number.temp_encendido`: Temperatura de encendido de calefacción (por defecto: 21.9°C).
 - `input_number.temp_apagado`: Temperatura de apagado por exceso (por defecto: 23.5°C).
 - `input_number.temp_ext_boost`: Temperatura exterior que activa el boost anti-cycling (por defecto: 18°C).
 - `input_number.delta_acs`: Diferencia mínima entre temp. actual y objetivo del depósito ACS para activar calentado (por defecto: 5°C).

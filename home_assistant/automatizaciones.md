@@ -30,7 +30,8 @@ Actúa como un sintonizador fino mientras la máquina está en modo calefacción
 | :--- | :--- | :--- | :--- |
 | **Fría (< temp_encendido)** | OFF | Cambia a HEAT (Offset 0 o +1) | *En espera* |
 | **Confort (consigna ±0.4°C)** | HEAT | Mantiene estado | Sin cambios (Zona muerta) |
-| **Calor (>consigna +0.4°C)** | HEAT | Mantiene (si Ext < 15°C) | Reduce Offset (-1) |
+| **Calentandose (>consigna +0.4°C)** | HEAT | Mantiene (si Ext < 15°C) | Reduce Offset (-1) |
+| **Enfriandose (<consigna -0.4°C)** | HEAT | Mantiene (si Ext < 15°C) | Aumenta Offset (+1) |
 | **Exceso (> temp_apagado)** | HEAT | Cambia a OFF (+gestión ACS) | *En espera* |
 
 ---
@@ -52,11 +53,11 @@ Actúa como un sintonizador fino mientras la máquina está en modo calefacción
 - `input_number.delta_acs`: Diferencia mínima entre temp. actual y objetivo del depósito ACS para activar calentado (por defecto: 5°C).
 
 **Helpers — Offset Dinámico (`offset_dinamico.yaml`):**
-- `input_number.consigna_temperatura`: Temperatura de consigna para el ajuste de offset (Mín: 18, Máx: 26, Paso: 0.1).
-- `input_boolean.modo_vacaciones`: Toggle para activar el modo ahorro vacaciones (reduce la consigna en 2°C).
-- `input_boolean.reduccion_nocturna`: Toggle para activar la reducción de temperatura nocturna (reduce la consigna en 1°C).
-- `input_datetime.hora_dormir`: Hora de inicio de la reducción nocturna (por defecto 22:00, teniendo en consideración inercia de la casa).
-- `input_datetime.hora_despertar`: Hora de fin de la reducción nocturna (por defecto 06:00, teniendo en consideración inercia de la casa).
+- `input_number.consigna_temperatura`: Temperatura de consigna para el ajuste de offset (valores recomendados Mín: 18, Máx: 26, Paso: 0.1).
+- `input_boolean.modo_vacaciones`: Opcional. Toggle para activar el modo ahorro vacaciones (reduce la consigna en 2°C).
+- `input_boolean.reduccion_nocturna`: Opcional. Toggle para activar la reducción de temperatura nocturna (reduce la consigna en 1°C).
+- `input_datetime.hora_dormir`: Opcional. Se usa si se activa reduccion_nocturna. Hora de inicio de la reducción nocturna (por defecto 22:00, teniendo en consideración inercia de la casa).
+- `input_datetime.hora_despertar`: Opcional. Se usa si se activa reduccion_nocturna. Hora de fin de la reducción nocturna (por defecto 06:00, teniendo en consideración inercia de la casa).
 
 ### Instalación
 1. Copia el contenido de las automatizaciones en tu archivo `automations.yaml`.

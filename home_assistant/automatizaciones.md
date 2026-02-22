@@ -49,7 +49,7 @@ Actúa como un sintonizador fino mientras la máquina está en modo calefacción
 - `input_number.temp_encendido`: Temperatura de encendido de calefacción (por defecto: 21.95°C).
 - `input_number.temp_apagado`: Temperatura de apagado por exceso (por defecto: 23.5°C).
 - `input_number.temp_ext_boost`: Temperatura exterior que activa el boost anti-cycling (por defecto: 18°C).
-- `input_number.delta_acs`: Diferencia mínima entre temp. actual y objetivo del depósito ACS para activar la carga (por defecto: 5°C).
+- `input_number.delta_acs`: Diferencia mínima entre temp. actual y objetivo del depósito ACS para activar calentado (por defecto: 5°C).
 
 **Helpers — Offset Dinámico (`offset_dinamico.yaml`):**
 - `input_number.consigna_temperatura`: Temperatura de consigna para el ajuste de offset (Mín: 18, Máx: 26, Paso: 0.1).
@@ -88,7 +88,7 @@ Este repositorio contiene la lógica para el control principal de un sistema de 
 | `input_number.temp_encendido` | Número | 21.95°C | Temperatura interior que activa la calefacción |
 | `input_number.temp_apagado` | Número | 23.5°C | Temperatura interior que apaga la calefacción |
 | `input_number.temp_ext_boost` | Número | 18°C | Temp. exterior para activar boost anti-cycling |
-| `input_number.delta_acs` | Número | 5°C | Diferencia mínima para activar carga de ACS |
+| `input_number.delta_acs` | Número | 5°C | Diferencia mínima para activar calentado ACS |
 
 ## 📝 Instalación
 1. Crea los helpers en Home Assistant (Configuración → Helpers).

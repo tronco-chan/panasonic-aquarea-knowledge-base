@@ -86,10 +86,10 @@ Este repositorio contiene la lógica para el control principal de un sistema de 
 
 ## ⚙️ Helpers Necesarios
 
-| Helper | Tipo | Valor por defecto | Descripción |
+| Helper | Tipo | Valor recomendado | Descripción |
 | :--- | :--- | :--- | :--- |
-| `input_number.temp_encendido` | Número | 21.95°C | Temperatura interior que activa la calefacción |
-| `input_number.temp_apagado` | Número | 23.5°C | Temperatura interior que apaga la calefacción |
+| `input_number.temp_encendido` | Número | 21.9°C | Temperatura interior que activa la calefacción. Configurar segun preferencia personal |
+| `input_number.temp_apagado` | Número | 23.5°C | Temperatura interior que apaga la calefacción. Configurar segun preferencia personal |
 | `input_number.temp_ext_boost` | Número | 18°C | Temp. exterior para activar boost anti-cycling |
 | `input_number.delta_acs` | Número | 5°C | Diferencia mínima para activar calentado ACS |
 

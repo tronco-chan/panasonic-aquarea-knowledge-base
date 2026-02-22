@@ -11,14 +11,11 @@ triggers:
     minutes: "1"
     trigger: time_pattern
   - alias: ON < temp_encendido TempInt
-    entity_id: sensor.promedio_temperatura_int
-    below: "{{ states('input_number.temp_encendido') | float(21.9) }}"
-    trigger: numeric_state
+    trigger: template
+    value_template: "{{ states('sensor.promedio_temperatura_int') < states('input_number.temp_encendido') | float(21.9) }}"
   - alias: OFF > temp_apagado TempInt
-    entity_id:
-      - sensor.promedio_temperatura_int
-    above: "{{ states('input_number.temp_apagado') | float(23.5) }}"
-    trigger: numeric_state
+    trigger: template
+    value_template: "{{ states('sensor.promedio_temperatura_int') > states('input_number.temp_apagado') | float(23.5) }}"
     for:
       hours: 0
       minutes: 15
@@ -32,9 +29,8 @@ actions:
       # RAMA 1: ENCENDIDO — Casa fría, máquina apagada
       # =====================================================
       - conditions:
-          - condition: numeric_state
-            entity_id: sensor.promedio_temperatura_int
-            below: "{{ states('input_number.temp_encendido') | float(21.9) }}"
+          - condition: template
+            value_template: "{{ states('sensor.promedio_temperatura_int') < states('input_number.temp_encendido') | float(21.9) }}"
           - condition: state
             entity_id: climate.pana_zone_1
             state: "off"
@@ -70,9 +66,8 @@ actions:
           # Anti-cycling: boost +1 si temp exterior alta para garantizar disipación
           - choose:
               - conditions:
-                  - condition: numeric_state
-                    entity_id: sensor.promedio_temperatura_ext
-                    above: "{{ states('input_number.temp_ext_boost') | float(18) }}"
+                  - condition: template
+                    value_template: "{{ states('sensor.promedio_temperatura_ext') > states('input_number.temp_ext_boost') | float(18) }}"
                 sequence:
                   - target:
                       entity_id: climate.pana_zone_1
@@ -90,9 +85,8 @@ actions:
       # RAMA 2: APAGADO — Casa caliente, gestión ACS
       # =====================================================
       - conditions:
-          - condition: numeric_state
-            entity_id: sensor.promedio_temperatura_int
-            above: "{{ states('input_number.temp_apagado') | float(23.5) }}"
+          - condition: template
+            value_template: "{{ states('sensor.promedio_temperatura_int') > states('input_number.temp_apagado') | float(23.5) }}"
           - condition: state
             entity_id: climate.pana_zone_1
             state: heat

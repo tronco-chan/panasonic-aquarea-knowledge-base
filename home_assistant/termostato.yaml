@@ -1,4 +1,4 @@
-alias: Aerotermia - Termostato Maestro ON/OFF + Gestión ACS
+alias: Aerotermia - Termostato ON/OFF
 description: >
   Enciende calefacción cuando la casa está fría (por debajo de la consigna de encendido),
   aplica boost de offset si la temperatura exterior es alta (anti-cycling).
@@ -42,25 +42,25 @@ actions:
           # Descomentar el bloque siguiente para evitar arranques en horas punta.
           # Evita encendidos L-V en franjas de alta tarifa eléctrica.
           # - condition: not
-          #     conditions:
-          #       - condition: time
-          #         weekday:
-          #           - mon
-          #           - tue
-          #           - wed
-          #           - thu
-          #           - fri
-          #         after: "10:00:00"
-          #         before: "14:00:00"
-          #       - condition: time
-          #         weekday:
-          #           - mon
-          #           - tue
-          #           - wed
-          #           - thu
-          #           - fri
-          #         after: "18:00:00"
-          #         before: "22:00:00"
+          #   conditions:
+          #     - condition: time
+          #       weekday:
+          #         - mon
+          #         - tue
+          #         - wed
+          #         - thu
+          #         - fri
+          #       after: "10:00:00"
+          #       before: "14:00:00"
+          #     - condition: time
+          #       weekday:
+          #         - mon
+          #         - tue
+          #         - wed
+          #         - thu
+          #         - fri
+          #       after: "18:00:00"
+          #       before: "22:00:00"
         sequence:
           - action: climate.set_hvac_mode
             target:
@@ -121,25 +121,25 @@ actions:
                   # Descomentar para evitar calentamiento de ACS en horas punta.
                   # Si está activo y se cumplen esas horas, NO se ejecuta el calentado de ACS.
                   # - condition: not
-                  #     conditions:
-                  #       - condition: time
-                  #         weekday:
-                  #           - mon
-                  #           - tue
-                  #           - wed
-                  #           - thu
-                  #           - fri
-                  #         after: "10:00:00"
-                  #         before: "14:00:00"
-                  #       - condition: time
-                  #         weekday:
-                  #           - mon
-                  #           - tue
-                  #           - wed
-                  #           - thu
-                  #           - fri
-                  #         after: "18:00:00"
-                  #         before: "22:00:00"
+                  #   conditions:
+                  #     - condition: time
+                  #       weekday:
+                  #         - mon
+                  #         - tue
+                  #         - wed
+                  #         - thu
+                  #         - fri
+                  #       after: "10:00:00"
+                  #       before: "14:00:00"
+                  #     - condition: time
+                  #       weekday:
+                  #         - mon
+                  #         - tue
+                  #         - wed
+                  #         - thu
+                  #         - fri
+                  #       after: "18:00:00"
+                  #       before: "22:00:00"
                 sequence:
                   - target:
                       entity_id: water_heater.pana_tank

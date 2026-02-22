@@ -1,4 +1,4 @@
-alias: Optimización Offset Dinámico
+alias: Aerotermia - Offset Dinámico
 description: Ajusta el offset (+1/-1) según temp interior, con límites de -5 a 5
 triggers:
   - trigger: time_pattern

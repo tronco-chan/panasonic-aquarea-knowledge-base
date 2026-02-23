@@ -15,26 +15,28 @@ actions:
       - conditions:
           - condition: template
             value_template: >-
-              {% set consigna = states('input_number.consigna_temperatura') | float(22.5) %}
+              {% set ns = namespace(consigna=states('input_number.consigna_temperatura') | float(22.5)) %}
               {% if is_state('input_boolean.modo_vacaciones', 'on') %}
-                {% set consigna = consigna - 2 %}
+                {% set ns.consigna = ns.consigna - 2 %}
               {% endif %}
               {% if is_state('input_boolean.reduccion_nocturna', 'on') %}
-                {% set dormir = states('input_datetime.hora_dormir') | default('22:00:00') %}
-                {% set despertar = states('input_datetime.hora_despertar') | default('06:00:00') %}
+                {% set hd = states('input_datetime.hora_dormir') %}
+                {% set dormir = hd if hd not in ['unknown', 'unavailable', 'None'] else '22:00:00' %}
+                {% set hdesp = states('input_datetime.hora_despertar') %}
+                {% set despertar = hdesp if hdesp not in ['unknown', 'unavailable', 'None'] else '06:00:00' %}
                 {% set ahora = now().strftime('%H:%M:%S') %}
                 {% if dormir > despertar %}
                   {% if ahora >= dormir or ahora < despertar %}
-                    {% set consigna = consigna - 1 %}
+                    {% set ns.consigna = ns.consigna - 1 %}
                   {% endif %}
                 {% else %}
                   {% if ahora >= dormir and ahora < despertar %}
-                    {% set consigna = consigna - 1 %}
+                    {% set ns.consigna = ns.consigna - 1 %}
                   {% endif %}
                 {% endif %}
               {% endif %}
               {% set temp_int = states('sensor.promedio_temperatura_int') | float(0) %}
-              {{ temp_int > (consigna + 0.4) }}
+              {{ temp_int > (ns.consigna + 0.4) }}
           - condition: template
             value_template: >-
               {% set temp_ext = states('sensor.promedio_temperatura_ext') | float(0) %}
@@ -63,26 +65,28 @@ actions:
       - conditions:
           - condition: template
             value_template: >-
-              {% set consigna = states('input_number.consigna_temperatura') | float(22.5) %}
+              {% set ns = namespace(consigna=states('input_number.consigna_temperatura') | float(22.5)) %}
               {% if is_state('input_boolean.modo_vacaciones', 'on') %}
-                {% set consigna = consigna - 2 %}
+                {% set ns.consigna = ns.consigna - 2 %}
               {% endif %}
               {% if is_state('input_boolean.reduccion_nocturna', 'on') %}
-                {% set dormir = states('input_datetime.hora_dormir') | default('22:00:00') %}
-                {% set despertar = states('input_datetime.hora_despertar') | default('06:00:00') %}
+                {% set hd = states('input_datetime.hora_dormir') %}
+                {% set dormir = hd if hd not in ['unknown', 'unavailable', 'None'] else '22:00:00' %}
+                {% set hdesp = states('input_datetime.hora_despertar') %}
+                {% set despertar = hdesp if hdesp not in ['unknown', 'unavailable', 'None'] else '06:00:00' %}
                 {% set ahora = now().strftime('%H:%M:%S') %}
                 {% if dormir > despertar %}
                   {% if ahora >= dormir or ahora < despertar %}
-                    {% set consigna = consigna - 1 %}
+                    {% set ns.consigna = ns.consigna - 1 %}
                   {% endif %}
                 {% else %}
                   {% if ahora >= dormir and ahora < despertar %}
-                    {% set consigna = consigna - 1 %}
+                    {% set ns.consigna = ns.consigna - 1 %}
                   {% endif %}
                 {% endif %}
               {% endif %}
               {% set temp_int = states('sensor.promedio_temperatura_int') | float(0) %}
-              {{ temp_int < (consigna - 0.4) }}
+              {{ temp_int < (ns.consigna - 0.4) }}
         sequence:
           - variables:
               target_temp: >-

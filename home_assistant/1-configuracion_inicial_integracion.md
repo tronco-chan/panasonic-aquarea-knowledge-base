@@ -6,9 +6,10 @@ A continuación, se detalla el procedimiento exacto para conseguir una conexión
 
 ## ⚠️ Requisitos Previos Obligatorios
 
-1. **HACS Instalado:** Debes tener funcionando el [Home Assistant Community Store](https://hacs.xyz/).
-2. **2FA Activo:** Es **obligatorio** tener activada la autenticación en dos pasos (vía SMS) en tu cuenta de Panasonic Comfort Cloud. Si no lo haces, la integración no podrá loguearse.
-3. **Paciencia y Reinicios:** Sigue los pasos en orden y reinicia cuando se indica.
+1. **Cuenta Dedicada:** Es **altamente recomendable** (casi obligatorio para evitar desconexiones) crear una segunda cuenta de usuario en la app de Panasonic Comfort Cloud exclusiva para usar en Home Assistant. No utilices la misma cuenta que llevas logueada en tu teléfono personal.
+2. **HACS Instalado:** Debes tener funcionando el [Home Assistant Community Store](https://hacs.xyz/).
+3. **2FA Activo:** Es **obligatorio** tener activada la autenticación en dos pasos (vía SMS) en tu cuenta de Panasonic Comfort Cloud. Si no lo haces, la integración no podrá loguearse.
+4. **Paciencia y Reinicios:** Sigue los pasos en orden y reinicia cuando se indica.
 
 ---
 

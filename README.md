@@ -18,6 +18,7 @@ El manual oficial es extenso, pero a veces confuso o con traducciones inexactas.
 ### 🏠 Home Assistant
 * **[Configuración Inicial de la Integración](home_assistant/1-configuracion_inicial_integracion.md):** Integración cloud oficial y comunidad.
 * **[Automatizaciones](home_assistant/automatizaciones.md):** Control maestro (termostato) y ajuste dinámico de offset.
+* **[Errores Comunes](home_assistant/errores_comunes.md):** Solución a problemas frecuentes y desconexiones.
 
 ### 🔌 Heishamon
 * **[Configuración Inicial](heishamon/1-configuracion_inicial.md):** soonTM

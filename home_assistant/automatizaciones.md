@@ -157,7 +157,38 @@ Incluso con una curva de calefacción perfectamente ajustada, factores externos 
 - **Archivo**: [`offset_dinamico.yaml`](./offset_dinamico.yaml)
 
 ---
+---
+
+# 💧 Home Assistant: Gestión de ACS y Precalentamiento
+
+Automatización programada (habitualmente ejecutada al mediodía o en las horas de mayor eficiencia térmica/solar) para garantizar la temperatura del Agua Caliente Sanitaria (ACS). Integra un sistema inteligente de precalentamiento de la vivienda, utilizando la inercia térmica para evitar el frío o el apagado del confort mientras la máquina dedica todo su esfuerzo a calentar el depósito.
+
+## 🚀 Funcionalidades
+
+- **Evaluación de Necesidad Dinámica**: Verifica si el ACS necesita calentamiento cruzando la temperatura actual con la temperatura objetivo del depósito, empleando el margen configurable (`input_number.delta_acs`).
+- **Precalentamiento por Tramos**: Según la temperatura interior y la consigna deseada (`input_number.consigna_temperatura`):
+  - **Vivienda Fría (< consigna)**: Inicia 50 minutos antes de la hora ACS, aplicando un boost de offset (+2 y luego +5) para sobrecalentar ligeramente la casa previniendo el periodo offline provocado por el ACS.
+  - **Vivienda Templada (hasta +0.5°C por encima de la consigna)**: Inicia sólo 10 minutos antes (boost de +5).
+  - **Vivienda Caliente**: Ignora el precalentamiento y pasa directamente a la carga del ACS.
+- **Robustez en Escrituras (Anti-fallos)**: Utiliza bucles de repetición (`repeat`) con comprobación para la aplicación de temperatura offset, garantizando que órdenes críticas lleguen correctamente a la máquina.
+- **Reversibilidad y Limpieza**: Si la automatización encendió la calefacción, al finalizar el proceso de ACS la apaga y devuelve el offset a 0, dejándolo transparente para la automatización maestra (`termostato.yaml`).
+- **Soporte Fancoils (Opcional)**: El YAML incluye bloques comentados para activar relés de fancoils durante el precalentamiento, acelerando la circulación de agua caliente. Están desactivados por defecto y solo deben activarse si tienes fancoils controlados por HA.
+
+## ⚙️ Helpers Necesarios
+
+| Helper | Tipo | Configuración | Descripción |
+| :--- | :--- | :--- | :--- |
+| `input_number.delta_acs` | Número | 5 = 5°C | Diferencia necesaria para considerar que el tanque requiere calentamiento. |
+| `input_number.consigna_temperatura` | Número | Mín: 18, Máx: 26, Paso: 0.1 | Consigna de referencia para evaluar si la vivienda requiere precalentamiento. |
+| `input_datetime.hora_acs` | Hora | Por defecto (ej: 15:45) | Hora a la que se desea ejecutar la carga de ACS. El precalentamiento arranca 1 hora antes de este valor. |
+
+## 📝 Configuración
+
+- **Trigger**: Dinámico (dependiente del helper `input_datetime.hora_acs`). La automatización se lanza exactamente 1 hora antes de la hora configurada.
+- **Archivo**: [`acs.yaml`](./acs.yaml)
+
+---
 
 | | | |
 |:---|:---:|---:|
-| [← Configuración Inicial](1-configuracion_inicial_integracion.md) | [📚 Volver al índice](../README.md) | |
+| [← Configuración Inicial](1-configuracion_inicial_integracion.md) | [📚 Volver al índice](../README.md) | [Errores Comunes →](errores_comunes.md) |

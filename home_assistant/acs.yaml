@@ -1,0 +1,499 @@
+alias: Aerotermia - ACS
+description: >
+  Automatización única que gestiona ACS según schedule y precalienta el agua del
+  circuito de calefacción antes del ACS, sin interferir con otras
+  automatizaciones y apagando calefacción si fue encendida por esta
+  automatización.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# TRIGGER
+# Se ejecuta 1 hora antes de la hora configurada en input_datetime.hora_acs.
+# Esa hora adelantada es el margen que utiliza la automatización para
+# precalentar el agua del circuito de calefacción (si procede) antes de
+# dedicar la máquina al calentamiento del depósito ACS.
+# ─────────────────────────────────────────────────────────────────────────────
+triggers:
+  - at:
+      entity_id: input_datetime.hora_acs
+      offset: "-01:00:00"
+    weekday:
+      - mon
+      - tue
+      - wed
+      - thu
+      - fri
+      - sat
+      - sun
+    trigger: time
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CONDICIÓN DE ENTRADA
+# Solo se ejecuta si el depósito ACS necesita calentamiento:
+#   - El modo del water_heater debe ser 'off' o 'idle' (no está calentando ya).
+#   - La temperatura actual del depósito debe estar al menos delta_acs grados
+#     por debajo de la temperatura objetivo (evita calentamientos innecesarios).
+# Si la condición no se cumple, la automatización termina sin hacer nada.
+# ─────────────────────────────────────────────────────────────────────────────
+conditions:
+  - condition: or
+    conditions:
+      - condition: template
+        value_template: >-
+          {% set mode = state_attr('water_heater.pana_tank', 'operation_mode')
+          %} {% set current = state_attr('water_heater.pana_tank',
+          'current_temperature') %} {% set target =
+          state_attr('water_heater.pana_tank', 'temperature') %} {% set delta =
+          states('input_number.delta_acs') | float(5) %} {{ mode in
+          ['off','idle'] and current is number and target is number and current
+          <= (target - delta) }}
+
+actions:
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # BLOQUE 1: ESTRATEGIA DE PRECALENTAMIENTO
+  #
+  # Evalúa la temperatura interior y decide cuánto tiempo y con qué intensidad
+  # se precalienta el agua del circuito de calefacción antes del ACS.
+  #
+  # El precalentamiento sirve para dos cosas:
+  #   1. Aprovechar el calor del circuito (que estaría parado durante el ACS)
+  #      sobrecalentando ligeramente la vivienda antes de que la máquina
+  #      dedique toda su potencia al depósito.
+  #   2. Garantizar que la temperatura del agua en el circuito esté alta
+  #      cuando arranque el ACS, mejorando la eficiencia del intercambiador.
+  #
+  # NOTA IMPORTANTE: set_temperature trabaja con un OFFSET (rango -5 a +5)
+  # sobre la consigna automática calculada por la máquina, NO una temperatura
+  # absoluta. La máquina siempre tiene una consigna base definida por su
+  # curva climática. El offset simplemente la sube o la baja.
+  # ───────────────────────────────────────────────────────────────────────────
+  - alias: Estrategia de precalentamiento según temperatura interior
+    choose:
+
+      # ·······································································
+      # ESCENARIO 1: CASA MUY FRÍA (temp interior < consigna)
+      #
+      # La casa necesita calor. Se precalienta agresivamente durante 1 hora:
+      #   - Primero 50 minutos con offset +2 (calentamiento moderado).
+      #   - Luego 10 minutos con offset +5 (máximo empuje justo antes del ACS).
+      # El bucle repeat garantiza que la orden de offset llegue correctamente
+      # a la máquina (hasta 5 reintentos con 1 min de espera entre ellos).
+      # ·······································································
+      - alias: Casa muy fría – precalentamiento largo 1h (offset sube +2°C luego +5°C)
+        conditions:
+          - condition: template
+            value_template: >-
+              {% set consigna = states('input_number.consigna_temperatura') |
+              float(22.5) %} {{ states('sensor.promedio_temperatura_int') |
+              float(0) < consigna }}
+        sequence:
+          # Activar calefacción si no lo estaba ya
+          - action: climate.set_hvac_mode
+            target:
+              entity_id: climate.pana_zone_1
+            data:
+              hvac_mode: heat
+          # Aplicar offset +2 con reintentos (hasta 5 intentos, 1 min entre ellos)
+          - repeat:
+              sequence:
+                - action: climate.set_temperature
+                  target:
+                    entity_id: climate.pana_zone_1
+                  data:
+                    temperature: 2
+                - delay:
+                    minutes: 1
+              until:
+                - condition: template
+                  value_template: >-
+                    {{ state_attr('climate.pana_zone_1', 'temperature') |
+                    float(0) == 2 or repeat.index >= 5 }}
+          - data:
+              name: Aerotermia
+              message: Precalentamiento del agua 1h antes del ACS iniciado (offset +2°C).
+              entity_id: climate.pana_zone_1
+            action: logbook.log
+          # Guardar flags: la calefacción se apagará tras el ACS solo si la
+          # encendió esta automatización (apagar_calefaccion_tras_acs = true).
+          - variables:
+              precalentamiento_on: "{{ apagar_calefaccion_tras_acs }}"
+              hacer_acs: true
+          # Esperar 50 minutos con offset +2
+          - delay:
+              hours: 0
+              minutes: 50
+              seconds: 0
+              milliseconds: 0
+          # Subir a offset +5 para el empuje final (10 min antes del ACS)
+          - repeat:
+              sequence:
+                - action: climate.set_temperature
+                  target:
+                    entity_id: climate.pana_zone_1
+                  data:
+                    temperature: 5
+                - delay:
+                    minutes: 1
+              until:
+                - condition: template
+                  value_template: >-
+                    {{ state_attr('climate.pana_zone_1', 'temperature') |
+                    float(0) == 5 or repeat.index >= 5 }}
+
+          # ·····································································
+          # FANCOILS (OPCIONAL) — Activar relés de fancoils para aumentar
+          # la circulación de agua caliente y acelerar el precalentamiento.
+          # Elimina o adapta estos bloques según tu instalación.
+          # Solo necesario si tienes fancoils controlados por relés/luces en HA.
+          # ·····································································
+          # - type: turn_on
+          #   device_id: 1a217c70262240084b3ecfc03caca8d8
+          #   entity_id: 462c82578051497758f5f979084ae51b
+          #   domain: light
+          #   brightness_pct: 45
+          # - type: turn_on
+          #   device_id: 950291e3194ff0c76069bb2640b4c0b5
+          #   entity_id: 116f5d8fb38fa1c95abd462429ea4330
+          #   domain: light
+          #   brightness_pct: 55
+          # - type: turn_on
+          #   device_id: 028f70c33647dbde6f7ec4876f7d98b6
+          #   entity_id: 8abcfc57efacef04063ae43cd5f73226
+          #   domain: light
+          #   brightness_pct: 55
+          # - type: turn_on
+          #   device_id: c2cc254cfc44f145f5b2a8af3885fc77
+          #   entity_id: a53df0d24484545c8ce18a13ca8c8d50
+          #   domain: light
+          #   brightness_pct: 55
+
+          # Esperar los 10 minutos finales con offset +5 antes del ACS
+          - delay:
+              hours: 0
+              minutes: 10
+              seconds: 0
+              milliseconds: 0
+
+      # ·······································································
+      # ESCENARIO 2: CASA POCO FRÍA (consigna ≤ temp < consigna + 0.5°C)
+      #
+      # La casa está cerca de la consigna pero ligeramente por debajo.
+      # Se espera 45 minutos (la casa aguantará bien) y solo se precalienta
+      # los últimos 10 minutos con offset +5 justo antes del ACS.
+      # Esto evita sobrecalentar la casa cuando apenas necesita refuerzo.
+      # ·······································································
+      - alias: Casa poco fría – precalentamiento corto 10 min (+5°C)
+        conditions:
+          - condition: template
+            value_template: >-
+              {% set consigna = states('input_number.consigna_temperatura') |
+              float(22.5) %} {% set temp_int =
+              states('sensor.promedio_temperatura_int') | float(0) %} {{
+              temp_int >= consigna and temp_int < (consigna + 0.5) }}
+        sequence:
+          # Esperar 45 min antes de arrancar (la casa no necesita calor urgente)
+          - delay:
+              hours: 0
+              minutes: 45
+              seconds: 0
+              milliseconds: 0
+          # Activar calefacción si no lo estaba ya
+          - action: climate.set_hvac_mode
+            target:
+              entity_id: climate.pana_zone_1
+            data:
+              hvac_mode: heat
+          - data:
+              name: Aerotermia
+              message: >
+                Precalentamiento del agua 10 min antes del ACS activado (offset
+                +5°C).
+              entity_id: climate.pana_zone_1
+            action: logbook.log
+          # Guardar flags (igual que escenario 1)
+          - variables:
+              precalentamiento_on: "{{ apagar_calefaccion_tras_acs }}"
+              hacer_acs: true
+          # Esperar 5 minutos antes de aplicar el offset (la máquina necesita
+          # un momento para estabilizarse tras el arranque)
+          - delay:
+              hours: 0
+              minutes: 5
+              seconds: 0
+              milliseconds: 0
+          # Aplicar offset +5 con reintentos (45s entre intentos, más rápido)
+          - repeat:
+              sequence:
+                - action: climate.set_temperature
+                  target:
+                    entity_id: climate.pana_zone_1
+                  data:
+                    temperature: 5
+                - delay:
+                    seconds: 45
+              until:
+                - condition: template
+                  value_template: >-
+                    {{ state_attr('climate.pana_zone_1', 'temperature') |
+                    float(0) == 5 or repeat.index >= 5 }}
+
+          # ·····································································
+          # FANCOILS (OPCIONAL) — Ver nota en Escenario 1.
+          # ·····································································
+          # - type: turn_on
+          #   device_id: 1a217c70262240084b3ecfc03caca8d8
+          #   entity_id: 462c82578051497758f5f979084ae51b
+          #   domain: light
+          #   brightness_pct: 45
+          # - type: turn_on
+          #   device_id: 950291e3194ff0c76069bb2640b4c0b5
+          #   entity_id: 116f5d8fb38fa1c95abd462429ea4330
+          #   domain: light
+          #   brightness_pct: 55
+          # - type: turn_on
+          #   device_id: 028f70c33647dbde6f7ec4876f7d98b6
+          #   entity_id: 8abcfc57efacef04063ae43cd5f73226
+          #   domain: light
+          #   brightness_pct: 55
+          # - type: turn_on
+          #   device_id: c2cc254cfc44f145f5b2a8af3885fc77
+          #   entity_id: a53df0d24484545c8ce18a13ca8c8d50
+          #   domain: light
+          #   brightness_pct: 55
+
+          # Esperar los últimos 10 minutos (offset +5 aplicado, casa en máximo)
+          - delay:
+              hours: 0
+              minutes: 10
+              seconds: 0
+              milliseconds: 0
+
+      # ·······································································
+      # ESCENARIO 3: CASA CALIENTE (temp ≥ consigna + 0.5°C)
+      #
+      # La casa tiene calor suficiente; no necesita precalentamiento.
+      # Se registra el evento en el logbook y se espera 1 hora (el mismo
+      # tiempo que los escenarios anteriores) para que todos los caminos
+      # converjan en el mismo punto temporal antes de arrancar el ACS.
+      # No se toca la calefacción → precalentamiento_on = false.
+      # ·······································································
+      - alias: Casa caliente – sin precalentamiento, ACS directo
+        conditions:
+          - condition: template
+            value_template: >-
+              {% set consigna = states('input_number.consigna_temperatura') |
+              float(22.5) %} {{ states('sensor.promedio_temperatura_int') |
+              float(0) >= (consigna + 0.5) }}
+        sequence:
+          - data:
+              name: Aerotermia
+              message: Calentamiento directo ACS (casa caliente, sin precalentamiento).
+              entity_id: climate.pana_zone_1
+            action: logbook.log
+          - variables:
+              precalentamiento_on: false
+              hacer_acs: true
+          # Esperar 1 hora para alinearse con la hora_acs configurada
+          - delay:
+              hours: 1
+              minutes: 0
+              seconds: 0
+              milliseconds: 0
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # BLOQUE 2: VERIFICACIÓN FINAL Y ARRANQUE DEL ACS
+  #
+  # Antes de activar el modo heating del depósito, se vuelve a comprobar si
+  # realmente sigue siendo necesario calentarlo. Durante la hora de espera del
+  # precalentamiento, podría haberse calentado por otra vía (ej: la automatización
+  # maestra lo activó manualmente).
+  #
+  # Si el depósito ya está caliente: se cancela la automatización con 'stop'.
+  # Si sigue necesitando calor: se activa el modo 'heating' del water_heater.
+  # ───────────────────────────────────────────────────────────────────────────
+  - alias: Verificación final y arranque del ACS
+    choose:
+      - alias: ACS sigue necesitando calentar – activar modo heating
+        conditions:
+          - condition: template
+            value_template: >-
+              {% set mode = state_attr('water_heater.pana_tank',
+              'operation_mode') %} {% set current =
+              state_attr('water_heater.pana_tank', 'current_temperature') %} {%
+              set target = state_attr('water_heater.pana_tank', 'temperature')
+              %} {% set delta = states('input_number.delta_acs') | float(5) %}
+              {{ mode in ['off','idle'] and current is number and target is
+              number and current <= (target - delta) }}
+        sequence:
+          - target:
+              entity_id: water_heater.pana_tank
+            data:
+              operation_mode: heating
+            action: water_heater.set_operation_mode
+          - data:
+              name: Aerotermia
+              message: Inicio de calentamiento de ACS (modo heating).
+              entity_id: water_heater.pana_tank
+            action: logbook.log
+    default:
+      # El depósito ya no necesita calentamiento (se calentó durante el precalentamiento
+      # o por otra automatización). Se detiene la ejecución para no interferir.
+      - data:
+          name: Aerotermia
+          message: >-
+            Cancelado ACS: los chequeos previos indican que no es necesario
+            calentar el agua.
+          entity_id: water_heater.pana_tank
+        action: logbook.log
+      - stop: ACS no requiere calentamiento
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # BLOQUE 3: GESTIÓN POST-INICIO DEL ACS (EN PARALELO)
+  #
+  # Una vez arranca el ACS, este bloque gestiona la calefacción de forma
+  # ASÍNCRONA (en paralelo con la espera del ACS) para no bloquear el flujo.
+  #
+  # La lógica es:
+  #   - Si esta automatización encendió la calefacción (precalentamiento_on=true):
+  #       → Esperar 20 min (margen para que el ACS arranque correctamente)
+  #       → Apagar la calefacción (devolver al estado previo)
+  #       → Resetear el offset a 0 (neutro para cuando la calefacción reanude)
+  #
+  #   - Si la calefacción ya estaba encendida o no se tocó (precalentamiento_on=false):
+  #       → Esperar 20 min
+  #       → Solo resetear el offset a 0 (por si quedó un offset residual del
+  #         precalentamiento o de sesiones previas)
+  #       → NO apagar la calefacción (el usuario la tenía encendida)
+  #
+  # El reset del offset a 0 es importante para que cuando la automatización
+  # maestra (termostato.yaml) reanude el control de la calefacción tras el ACS,
+  # lo haga desde el estado neutro y no con un offset alto residual.
+  # ───────────────────────────────────────────────────────────────────────────
+  - parallel:
+      - alias: Gestión post-ACS de la calefacción
+        choose:
+          - alias: Calefacción activada por esta automatización – apagarla tras 20 min
+            conditions:
+              - condition: template
+                value_template: "{{ precalentamiento_on }}"
+            sequence:
+              # Esperar 20 minutos tras el arranque del ACS
+              - delay: "00:20:00"
+              # Apagar la calefacción (la encendió esta automatización)
+              - data:
+                  hvac_mode: "off"
+                target:
+                  entity_id: climate.pana_zone_1
+                action: climate.set_hvac_mode
+              # Resetear offset a 0 (neutro) con reintentos
+              - repeat:
+                  sequence:
+                    - action: climate.set_temperature
+                      target:
+                        entity_id: climate.pana_zone_1
+                      data:
+                        temperature: 0
+                    - delay:
+                        minutes: 1
+                  until:
+                    - condition: template
+                      value_template: >-
+                        {{ state_attr('climate.pana_zone_1', 'temperature') |
+                        float(0) == 0 or repeat.index >= 5 }}
+              - data:
+                  name: Aerotermia
+                  message: >-
+                    Finalizado precalentamiento del agua tras 20 min desde
+                    inicio ACS.
+                  entity_id: climate.pana_zone_1
+                action: logbook.log
+          - alias: Calefacción ya estaba encendida – solo restablecer offset a 0
+            conditions: []
+            sequence:
+              # Esperar 20 minutos (mismo margen que la otra rama)
+              - delay: "00:20:00"
+              # Solo resetear offset a 0, sin apagar la calefacción
+              - repeat:
+                  sequence:
+                    - action: climate.set_temperature
+                      target:
+                        entity_id: climate.pana_zone_1
+                      data:
+                        temperature: 0
+                    - delay:
+                        minutes: 1
+                  until:
+                    - condition: template
+                      value_template: >-
+                        {{ state_attr('climate.pana_zone_1', 'temperature') |
+                        float(0) == 0 or repeat.index >= 5 }}
+    enabled: true
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # ESPERA 1: TEMPERATURA DEL DEPÓSITO
+  # Espera hasta que el depósito alcance la temperatura objetivo (con margen
+  # de 0.5°C). Timeout de 4 horas por seguridad. Si se cumple el timeout,
+  # la automatización continúa igualmente (continue_on_timeout: true).
+  # ───────────────────────────────────────────────────────────────────────────
+  - wait_template: >
+      {% set current =
+      state_attr('water_heater.pana_tank','current_temperature') | float(0) %}
+      {% set target = state_attr('water_heater.pana_tank','temperature') |
+      float(0) %} {{ current >= (target - 0.5) }}
+    timeout: "04:00:00"
+    continue_on_timeout: true
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # ESPERA 2: MODO IDLE DEL DEPÓSITO
+  # Espera hasta que el water_heater pase a modo 'idle' durante 15 minutos
+  # consecutivos (señal de que el calentamiento ha terminado y el compresor
+  # ha parado). Timeout de 1 hora adicional. Si se supera, continúa igualmente.
+  # ───────────────────────────────────────────────────────────────────────────
+  - wait_for_trigger:
+      - entity_id: water_heater.pana_tank
+        attribute: operation_mode
+        to: idle
+        for:
+          minutes: 15
+        trigger: state
+    timeout:
+      hours: 1
+    continue_on_timeout: true
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # FINALIZACIÓN: APAGAR EL MODO HEATING DEL ACS
+  # Una vez terminado el calentamiento (o superados los timeouts de seguridad),
+  # se desactiva el modo heating del depósito y se registra en el logbook.
+  # ───────────────────────────────────────────────────────────────────────────
+  - target:
+      entity_id: water_heater.pana_tank
+    data:
+      operation_mode: "off"
+    action: water_heater.set_operation_mode
+  - data:
+      name: Aerotermia
+      message: Calentamiento de ACS finalizado. Modo heating desactivado.
+      entity_id: water_heater.pana_tank
+    action: logbook.log
+
+# ─────────────────────────────────────────────────────────────────────────────
+# VARIABLES GLOBALES
+# Se evalúan UNA SOLA VEZ al inicio de la automatización.
+#
+# - temp_int: temperatura interior en el momento del trigger.
+# - apagar_calefaccion_tras_acs: captura si climate.pana_zone_1 estaba apagado
+#   al arrancar. Si era 'off', esta automatización lo encendió para precalentar
+#   y deberá apagarlo al finalizar. Si ya estaba encendido, no debe tocarlo.
+# - precalentamiento_on: flag de control (se sobrescribe en cada escenario).
+#   Valor por defecto false; los escenarios 1 y 2 lo ponen a true si
+#   apagar_calefaccion_tras_acs es true; el escenario 3 siempre lo deja false.
+# - hacer_acs: flag de intención (actualmente informativo; todos los escenarios
+#   lo ponen a true al entrar en acción).
+# ─────────────────────────────────────────────────────────────────────────────
+variables:
+  temp_int: "{{ states('sensor.promedio_temperatura_int') | float(0) }}"
+  apagar_calefaccion_tras_acs: "{{ is_state('climate.pana_zone_1', 'off') | bool(false) }}"
+  precalentamiento_on: false
+  hacer_acs: false
+
+mode: single
